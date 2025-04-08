@@ -1,31 +1,32 @@
-# Documentação do Script de Desinstalação do Maestro
+# Maestro Uninstallation Script Documentation
 
-Este script é responsável por desinstalar as versões do software Maestro (Maestro BPM, Maestro ERP, Maestro MCA, Maestro Nest) presentes no sistema. Ele busca os diretórios onde os produtos do Maestro podem estar instalados, exclui os arquivos e pastas encontradas, e registra a remoção em um arquivo de log.
+This script is responsible for uninstalling the Maestro software versions (Maestro BPM, Maestro ERP, Maestro MCA, Maestro Nest) present on the system. It searches for directories where Maestro products may be installed, deletes the found files and folders, and logs the removal in a log file.
 
-## Funcionalidades
+## Features
 
-1. **Busca por diretórios de instalação do Maestro**: O script verifica os diretórios padrão onde os produtos Maestro podem estar instalados.
-2. **Exclusão de arquivos**: O script percorre os diretórios encontrados e exclui todos os arquivos e subpastas dentro deles.
-3. **Registro de remoção**: Caso a remoção de arquivos seja realizada com sucesso, a mensagem "Maestro removido com sucesso" é registrada no arquivo de log.
-4. **Logs**: O arquivo de log é armazenado em `C:\Windows\Temp\Maestro_Uninstall_Log.txt`.
+1. **Search for Maestro installation directories**: The script checks standard directories where Maestro products might be installed.
+2. **File deletion**: The script iterates through the found directories and deletes all files and subfolders within them.
+3. **Removal logging**: If the file removal is successful, the message "Maestro successfully removed" is recorded in the log file.
+4. **Logs**: The log file is stored at `C:\Windows\Temp\Maestro_Uninstall_Log.txt`.
 
-## Estrutura do Código
+## Code Structure
 
-### 1. Importação de Bibliotecas
+### 1. Library Imports
 
 ```python
 import os
 import shutil
 import time
 ```
-Essas bibliotecas são usadas para manipulação de arquivos e diretórios:
-- **`os`**: Para verificar a existência de diretórios e manipulação de arquivos.
-- **`shutil`**: Para remover arquivos e pastas.
-- **`time`**: Para registrar a data e hora da remoção no log.
 
-### 2. Variáveis de Configuração
+These libraries are used for file and directory operations:
+- **`os`**: For checking the existence of directories and file handling.
+- **`shutil`**: For removing files and folders.
+- **`time`**: For recording the date and time of the removal in the log.
 
-#### Caminhos dos produtos Maestro
+### 2. Configuration Variables
+
+#### Maestro product paths
 
 ```python
 maestro_paths = [
@@ -44,95 +45,95 @@ maestro_paths = [
 ]
 ```
 
-Esses são os diretórios onde o script procurará pelos produtos Maestro instalados. A lista abrange várias localizações possíveis, tanto para sistemas de 32 bits quanto para 64 bits, além de pastas públicas.
+These are the directories the script will check for installed Maestro products. The list covers several possible locations, including both 32-bit and 64-bit systems, as well as public folders.
 
-#### Caminho do arquivo de log
+#### Log file path
 
 ```python
 log_path = r"C:\Windows\Temp\Maestro_Uninstall_Log.txt"
 ```
 
-Este é o caminho do arquivo de log onde a remoção do Maestro será registrada, caso a remoção seja bem-sucedida.
+This is the path to the log file where the removal of Maestro will be recorded, if successful.
 
-### 3. Funções
+### 3. Functions
 
 #### `log_remocao()`
 
 ```python
 def log_remocao():
-    """Registra apenas a mensagem 'Maestro removido com sucesso' no arquivo de log"""
+    """Logs only the message 'Maestro successfully removed' in the log file"""
     try:
         with open(log_path, "a") as log_file:
-            log_file.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - Maestro removido com sucesso\n")
-        print("Maestro removido com sucesso")  # Exibe no terminal
+            log_file.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - Maestro successfully removed\n")
+        print("Maestro successfully removed")  # Displays in the terminal
     except Exception:
-        pass  # Ignora erros ao gravar no log
+        pass  # Ignores errors when writing to the log
 ```
 
-Função responsável por registrar no arquivo de log que o Maestro foi removido com sucesso, incluindo a data e a hora da remoção. Caso ocorra algum erro durante a gravação no log, ele é ignorado.
+This function is responsible for recording in the log file that Maestro was successfully removed, including the date and time of the removal. If an error occurs while writing to the log, it is silently ignored.
 
-#### `excluir_arquivos(diretorio)`
+#### `excluir_arquivos(directory)`
 
 ```python
-def excluir_arquivos(diretorio):
-    """Exclui todos os arquivos e pastas dentro do diretório fornecido"""
-    removido = False
-    for root, dirs, files in os.walk(diretorio, topdown=False):
+def excluir_arquivos(directory):
+    """Deletes all files and folders within the provided directory"""
+    removed = False
+    for root, dirs, files in os.walk(directory, topdown=False):
         for name in files:
             try:
                 os.remove(os.path.join(root, name))
-                removido = True
+                removed = True
             except Exception:
                 pass
         for name in dirs:
             try:
                 shutil.rmtree(os.path.join(root, name))
-                removido = True
+                removed = True
             except Exception:
                 pass
-    return removido
+    return removed
 ```
 
-Essa função percorre o diretório fornecido, removendo todos os arquivos e pastas dentro dele. Ela retorna `True` se algum arquivo ou pasta foi removido com sucesso, caso contrário, retorna `False`.
+This function walks through the given directory and deletes all files and folders inside. It returns `True` if any file or folder was successfully removed, otherwise `False`.
 
 #### `desinstalar_maestro()`
 
 ```python
 def desinstalar_maestro():
-    """Desinstala todas as versões do Maestro encontradas"""
-    algo_removido = False
+    """Uninstalls all detected versions of Maestro"""
+    something_removed = False
     for path in maestro_paths:
         if os.path.exists(path):
             if excluir_arquivos(path):
-                algo_removido = True
+                something_removed = True
 
-    if algo_removido:
+    if something_removed:
         log_remocao()
     else:
-        print("Nenhuma versão do Maestro encontrada.")  # Não cria log
+        print("No Maestro version found.")  # No log is created
 ```
 
-Esta função verifica se algum dos diretórios padrão contém produtos Maestro instalados e, caso encontre, chama a função `excluir_arquivos()` para excluir os arquivos. Se ao menos um diretório foi removido, a função `log_remocao()` é chamada para registrar a remoção. Caso nenhum produto Maestro seja encontrado, uma mensagem é exibida no terminal.
+This function checks if any of the default directories contain installed Maestro products. If found, it calls the `excluir_arquivos()` function to delete the files. If at least one directory is removed, the `log_remocao()` function is called to log the removal. If no Maestro products are found, a message is displayed in the terminal.
 
-### 4. Execução do Script
+### 4. Script Execution
 
 ```python
 if __name__ == "__main__":
     desinstalar_maestro()
 ```
 
-Esta linha garante que o script será executado apenas quando for chamado diretamente (não quando importado como módulo). Ela chama a função `desinstalar_maestro()` para iniciar o processo de desinstalação.
+This line ensures that the script will only run when executed directly (not when imported as a module). It calls the `desinstalar_maestro()` function to start the uninstallation process.
 
-## Uso
+## Usage
 
-1. **Executar o script**: Basta executar o script em um ambiente Python. Ele tentará localizar as instalações do Maestro e removê-las, além de registrar a remoção no arquivo de log.
-2. **Verificar o log**: Após a execução, o arquivo de log `C:\Windows\Temp\Maestro_Uninstall_Log.txt` pode ser verificado para confirmar as remoções realizadas.
+1. **Run the script**: Simply execute the script in a Python environment. It will attempt to locate and remove Maestro installations and log the removal.
+2. **Check the log**: After execution, the log file at `C:\Windows\Temp\Maestro_Uninstall_Log.txt` can be checked to confirm the removals performed.
 
-## Possíveis Melhorias
+## Possible Improvements
 
-- **Tratamento de erros mais robusto**: Em caso de falhas na exclusão de arquivos ou gravação no log, o script pode registrar mais informações sobre o erro.
-- **Verificação adicional**: O script pode ser modificado para verificar outras localizações ou realizar verificações de permissão antes de tentar excluir arquivos.
+- **More robust error handling**: In case of failure during file deletion or log writing, the script could log more detailed error information.
+- **Additional checks**: The script could be modified to search other locations or perform permission checks before attempting deletion.
 
-## Conclusão
+## Conclusion
 
-Esse script foi projetado para facilitar a remoção das versões do Maestro e garantir que o processo seja registrado de forma simples.
+This script was designed to streamline the removal of Maestro versions and ensure the process is recorded in a simple and effective way.
